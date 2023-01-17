@@ -37,7 +37,7 @@ public class NetFetchTask {
     private void retrieveRecipeListDataFromServer(int fromPage, int size) {
         // Call your endpoint
         Call<RecipeList> call = apiService.getJsonApiRecipe().getAllRecipes(
-                Constants.API_KEY,fromPage,size);
+                );
 
         call.enqueue(new Callback<RecipeList>() {
             @Override
@@ -62,10 +62,12 @@ public class NetFetchTask {
         });
     }
 
-    public void retrieveRecipeDetailsDataFromServer(int id,Callback_networkResponse callback_networkResponse) {
+    public void retrieveRecipeDetailsDataFromServer(String recipeUrl,int id,Callback_networkResponse callback_networkResponse) {
+        recipeUrl=recipeUrl.substring(recipeUrl.lastIndexOf("/") + 1);
         // Call your endpoint
         Call<Recipe> call = apiService.getJsonApiRecipe().getRecipeDetails(
-                Constants.API_KEY,id);
+                recipeUrl
+                );
 
         call.enqueue(new Callback<Recipe>() {
             @Override

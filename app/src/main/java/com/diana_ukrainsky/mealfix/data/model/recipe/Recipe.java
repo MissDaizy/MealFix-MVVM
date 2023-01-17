@@ -15,8 +15,10 @@ public class Recipe {
     private String recipeImage;
     @SerializedName("video_url")
     private String recipeVideo;
-    @SerializedName("num_servings")
-    private String numServings;
+    @SerializedName("get_more_info_url")
+    private String getMoreInfoUrl;
+//    @SerializedName("num_servings")
+//    private String numServings;
 
     public Recipe() {
     }
@@ -69,11 +71,21 @@ public class Recipe {
         this.recipeVideo = recipeVideo;
     }
 
-    public String getNumServings() {
-        return numServings;
+
+//    public String getNumServings() {
+//        return numServings;
+//    }
+//
+//    public void setNumServings(String numServings) {
+//        this.numServings = numServings;
+//    }
+
+    public String getGetMoreInfoUrl() {
+        return getMoreInfoUrl;
     }
 
-    public void setNumServings(String numServings) {
-        this.numServings = numServings;
+    public Recipe setGetMoreInfoUrl(String getMoreInfoUrl) {
+        this.getMoreInfoUrl = getMoreInfoUrl;
+        return this;
     }
 }

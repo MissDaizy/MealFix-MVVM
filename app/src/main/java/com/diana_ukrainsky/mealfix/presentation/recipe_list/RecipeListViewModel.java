@@ -24,6 +24,7 @@ public class RecipeListViewModel extends ViewModel {
     NetFetchTask netFetchTask;
     private PaginationManager paginationManager;
 
+    private ItemListener itemListener;
 
 
     public RecipeListViewModel() {
@@ -39,9 +40,10 @@ public class RecipeListViewModel extends ViewModel {
 
     public void init() {
         customEventHandler = new CustomEventHandler();
-        paginationManager=PaginationManager.getInstance();
+        paginationManager = PaginationManager.getInstance();
         recipeArrayList = new ArrayList<>();
         recipeLiveData.setValue(recipeArrayList);
+
     }
 
     public void populateList(
@@ -102,12 +104,15 @@ public class RecipeListViewModel extends ViewModel {
                 clickedRecipePosition = ((int) object);
                 currentClickedRecipe = recipeArrayList.get(clickedRecipePosition);
 
-                netFetchTask.retrieveRecipeDetailsDataFromServer(currentClickedRecipe.getRecipeId(), new NetFetchTask.Callback_networkResponse() {
+                netFetchTask.retrieveRecipeDetailsDataFromServer(currentClickedRecipe.getGetMoreInfoUrl(), currentClickedRecipe.getRecipeId(), new NetFetchTask.Callback_networkResponse() {
                     @Override
                     public void onSuccess(Object object) {
                         Recipe recipe = (Recipe) object;
-                        recipeArrayList.set(clickedRecipePosition,recipe);
+                        recipeArrayList.set(clickedRecipePosition, recipe);
                         recipeLiveData.setValue(recipeArrayList);
+                        itemListener.onItemUpdated();
+
+
                     }
 
                     @Override
@@ -153,4 +158,12 @@ public class RecipeListViewModel extends ViewModel {
         return paginationManager.isLoading();
     }
 
+    public ItemListener getItemLisener() {
+        return itemListener;
+    }
+
+    public RecipeListViewModel setItemLisener(ItemListener itemListener) {
+        this.itemListener = itemListener;
+        return this;
+    }
 }

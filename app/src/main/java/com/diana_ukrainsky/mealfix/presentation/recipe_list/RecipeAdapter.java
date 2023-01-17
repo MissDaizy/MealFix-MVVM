@@ -63,7 +63,8 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 MyViewHolder myViewHolder = (MyViewHolder) holder;
                 setListeners(myViewHolder,position);
                 myViewHolder.recipeListItemBinding.recipeListItemTXTTitle.setText(recipe.getRecipeName());
-                myViewHolder.recipeListItemBinding.recipeListItemTXTCookingTime.setText(String.valueOf(recipe.getCookTime()));
+                myViewHolder.recipeListItemBinding.recipeListItemTXTCookingTime.setText(""+recipe.getCookTime());
+//                myViewHolder.recipeListItemBinding.recipeListItemTXTCookingTime.setText(recipe.getRecipeId());
                 break;
 
             case LOADING:

@@ -16,6 +16,7 @@ import com.bumptech.glide.Glide;
 import com.diana_ukrainsky.mealfix.data.model.recipe.Recipe;
 import com.diana_ukrainsky.mealfix.databinding.FragmentRecipeDetailsBinding;
 import com.diana_ukrainsky.mealfix.presentation.recipe_list.CustomObjectListener;
+import com.diana_ukrainsky.mealfix.presentation.recipe_list.ItemListener;
 import com.diana_ukrainsky.mealfix.presentation.recipe_list.RecipeAdapter;
 import com.diana_ukrainsky.mealfix.presentation.recipe_list.RecipeListViewModel;
 
@@ -31,6 +32,8 @@ public class RecipeDetailsFragment extends Fragment implements LifecycleOwner {
     private CustomObjectListener customObjectListener;
 
 
+    int position;
+
     public RecipeDetailsFragment() {
         // Required empty public constructor
     }
@@ -39,6 +42,8 @@ public class RecipeDetailsFragment extends Fragment implements LifecycleOwner {
         RecipeDetailsFragment fragment = new RecipeDetailsFragment();
         return fragment;
     }
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,23 +57,35 @@ public class RecipeDetailsFragment extends Fragment implements LifecycleOwner {
         fragmentRecipeDetailsBinding = FragmentRecipeDetailsBinding.inflate(inflater, container, false);
         View view = fragmentRecipeDetailsBinding.getRoot();
 
-        int position = getArguments().getInt("position", 0);
+        position = getArguments().getInt("position", 0);
 
         setViewModel();
         setViews(position);
-//        setListeners();
+
+        setListeners();
 //
 //        setRecipeListUI();
 
         return view;
     }
 
+    private void setListeners() {
+        ItemListener itemListener = new ItemListener() {
+            @Override
+            public void onItemUpdated() {
+                setRecipeDetailsUI();
+
+            }
+        };
+        recipeListViewModel.setItemLisener(itemListener);
+    }
+
     private void setViews(int position) {
         Recipe recipe = recipeListViewModel.getRecipeListData().getValue().get(position);
         setImage(recipe.getRecipeImage());
         fragmentRecipeDetailsBinding.recipeListItemTXTTitle.setText(recipe.getRecipeName());
-        fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTCookingTime.setText(""+recipe.getNumServings());
-
+        fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTCookingTime.setText(String.valueOf(recipe.getCookTime()));
+//        fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTCookingTime.setText(recipe.getGetMoreInfoUrl().substring(recipe.getGetMoreInfoUrl().lastIndexOf("/") + 1));
     }
 
     private void setImage(String recipeImage) {
@@ -87,8 +104,18 @@ public class RecipeDetailsFragment extends Fragment implements LifecycleOwner {
         @Override
         public void onChanged(ArrayList<Recipe> recipeArrayList) {
             // Update the UI with the new data
+
         }
     };
+
+    private void setRecipeDetailsUI() {
+        Recipe recipe = recipeListViewModel.getRecipeListData().getValue().get(position);
+        //fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTCookingTime.setText(recipe.getGetMoreInfoUrl().substring(recipe.getGetMoreInfoUrl().lastIndexOf("/") + 1));
+        fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTDescription.setText(recipe.getRecipeDescription());
+
+
+
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -105,5 +132,8 @@ public class RecipeDetailsFragment extends Fragment implements LifecycleOwner {
         super.onDetach();
         customObjectListener = null;
     }
+
+
+
 
 }

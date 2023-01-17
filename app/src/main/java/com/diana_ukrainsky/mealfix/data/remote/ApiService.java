@@ -32,7 +32,7 @@ public class ApiService {
 
     private void initializeRetrofit() {
         retrofit = new Retrofit.Builder()
-                .baseUrl(Constants.TASTY_BASE_URL)
+                .baseUrl(Constants.MY_BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(new Gson()))
                 .build();
     }

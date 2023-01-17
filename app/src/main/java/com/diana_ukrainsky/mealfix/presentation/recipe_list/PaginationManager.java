@@ -25,7 +25,6 @@ public class PaginationManager {
         return INSTANCE;
     }
 
-
     public boolean isLoading() {
         return isLoading;
     }
@@ -43,7 +42,6 @@ public class PaginationManager {
     public void removeLoadingFooter() {
         isLoadingAdded = false;
     }
-
 
     public int getMaxResultsInPage() {
         return MAX_RESULTS_IN_PAGE;
