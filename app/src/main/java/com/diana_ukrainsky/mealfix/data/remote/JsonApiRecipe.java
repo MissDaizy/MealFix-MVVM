@@ -7,31 +7,18 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
-import retrofit2.http.Url;
 
 public interface JsonApiRecipe {
-//    @GET("recipes/list")
-//    Call<RecipeList> getAllRecipes(
-//            @Query("rapidapi-key")String apiKey,
-//            @Query("from")int fromPage,
-//            @Query("size") int size
-//            );
-
-
-//    @GET("recipes/get-more-info")
-//    Call<Recipe> getRecipeDetails(
-//            @Url String url,
-//            @Query("rapidapi-key")String apiKey,
-//            @Query("id")int id
-//    );
-
+    // The Recipe list
     @GET("recipes/list")
     Call<RecipeList> getAllRecipes(
-
+            @Query("from") int fromPage,
+            @Query("size") int size
     );
 
-    @GET("recipes/get-more-info/{id}")
+    // The Recipe details of every item in the list by id
+    @GET("recipes/get-more-info/{recipeUrlId}")
     Call<Recipe> getRecipeDetails(
-            @Path("id") String id
+            @Path("recipeUrlId") String recipeUrlId
     );
 }

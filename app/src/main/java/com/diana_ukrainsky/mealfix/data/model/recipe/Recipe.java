@@ -1,5 +1,6 @@
 package com.diana_ukrainsky.mealfix.data.model.recipe;
 
+import com.diana_ukrainsky.mealfix.data.model.nutrition.Nutrition;
 import com.google.gson.annotations.SerializedName;
 
 public class Recipe {
@@ -17,8 +18,8 @@ public class Recipe {
     private String recipeVideo;
     @SerializedName("get_more_info_url")
     private String getMoreInfoUrl;
-//    @SerializedName("num_servings")
-//    private String numServings;
+    @SerializedName("nutrition")
+    private Nutrition nutrition;
 
     public Recipe() {
     }
@@ -71,15 +72,6 @@ public class Recipe {
         this.recipeVideo = recipeVideo;
     }
 
-
-//    public String getNumServings() {
-//        return numServings;
-//    }
-//
-//    public void setNumServings(String numServings) {
-//        this.numServings = numServings;
-//    }
-
     public String getGetMoreInfoUrl() {
         return getMoreInfoUrl;
     }
@@ -87,5 +79,13 @@ public class Recipe {
     public Recipe setGetMoreInfoUrl(String getMoreInfoUrl) {
         this.getMoreInfoUrl = getMoreInfoUrl;
         return this;
+    }
+
+    public Nutrition getNutrition() {
+        return nutrition;
+    }
+
+    public void setNutrition(Nutrition nutrition) {
+        this.nutrition = nutrition;
     }
 }

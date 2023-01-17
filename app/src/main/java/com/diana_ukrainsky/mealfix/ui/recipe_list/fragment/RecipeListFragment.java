@@ -1,4 +1,4 @@
-package com.diana_ukrainsky.mealfix.presentation.recipe_list.fragments;
+package com.diana_ukrainsky.mealfix.ui.recipe_list.fragment;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -10,19 +10,21 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import com.diana_ukrainsky.mealfix.common.Constants;
 import com.diana_ukrainsky.mealfix.data.model.recipe.Recipe;
 import com.diana_ukrainsky.mealfix.data.model.recipe.RecipeList;
 import com.diana_ukrainsky.mealfix.databinding.FragmentRecipeListBinding;
-import com.diana_ukrainsky.mealfix.presentation.recipe_list.CustomObjectListener;
-import com.diana_ukrainsky.mealfix.presentation.recipe_list.PaginationScrollListener;
-import com.diana_ukrainsky.mealfix.presentation.recipe_list.RecipeAdapter;
-import com.diana_ukrainsky.mealfix.presentation.recipe_list.RecipeListEvent;
-import com.diana_ukrainsky.mealfix.presentation.recipe_list.RecipeListViewModel;
+import com.diana_ukrainsky.mealfix.ui.callback.CustomItemClickListener;
+import com.diana_ukrainsky.mealfix.ui.recipe_list.pagination.PaginationScrollListener;
+import com.diana_ukrainsky.mealfix.ui.recipe_list.adapter.RecipeAdapter;
+import com.diana_ukrainsky.mealfix.ui.recipe_list.RecipeListEvent;
+import com.diana_ukrainsky.mealfix.ui.recipe_list.RecipeListViewModel;
 
 import java.util.ArrayList;
 
@@ -35,7 +37,7 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
     private RecyclerView recyclerView;
     private RecipeAdapter recipeAdapter;
 
-    private CustomObjectListener customObjectListener;
+    private CustomItemClickListener customItemClickListener;
 
     private ProgressBar progressBar;
 
@@ -43,8 +45,8 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
         // Required empty public constructor
     }
 
-    public RecipeListFragment(CustomObjectListener customObjectListener) {
-        this.customObjectListener=customObjectListener;
+    public RecipeListFragment(CustomItemClickListener customItemClickListener) {
+        this.customItemClickListener = customItemClickListener;
     }
 
     @Override
@@ -63,7 +65,6 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
         setViews();
         setRecyclerView();
         setAdapter();
-        setListeners();
         setRecipeListUI();
 
         return view;
@@ -71,7 +72,7 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
 
     private void setViews() {
         progressBar = fragmentRecipeListBinding.fragmentRecipeListPBProgressBar;
-         progressBar.setVisibility (View.INVISIBLE);
+        progressBar.setVisibility(View.INVISIBLE);
     }
 
     private void setViewModel() {
@@ -87,10 +88,6 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
         recyclerView.setLayoutManager(linearLayoutManager);
     }
 
-    private void setListeners() {
-
-    }
-
     Observer<ArrayList<Recipe>> recipeListUpdateObserver = new Observer<ArrayList<Recipe>>() {
         @Override
         public void onChanged(ArrayList<Recipe> recipeArrayList) {
@@ -101,24 +98,10 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
     private void setRecipeListUI() {
         loadFirstPage();
         loadMoreItems();
-//        recipeListViewModel.populateList(object -> {
-//                    if (object != null) {
-//                        ArrayList<Recipe> recipes = (ArrayList<Recipe>) ((RecipeList) object).getRecipeList();
-//                        recipeAdapter.updateRecipeListItems(recipes);
-//                    }
-//                },
-//                object -> {
-//                    if (object != null) {
-//
-//                    }
-//
-//                });
-
-
     }
 
     private void setAdapter() {
-        recipeAdapter = new RecipeAdapter(recipeListViewModel.getRecipeListData().getValue(), customObjectListener);
+        recipeAdapter = new RecipeAdapter(getContext(), recipeListViewModel.getRecipeListData().getValue(), customItemClickListener);
         recyclerView.setAdapter(recipeAdapter);
     }
 
@@ -160,7 +143,9 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
                 },
                 object -> {
                     if (object != null) {
-
+                        /*  In case i'll want in the future fetch Recipe details right away
+                        after the recipeList
+                         */
                     }
 
                 });
@@ -178,12 +163,14 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
 
 
                     } else {
-                        //AlertUtils.showToast (getApplicationContext (), movieList.getError ());
                         progressBar.setVisibility(View.GONE);
                     }
                 },
                 object -> {
                     if (object != null) {
+                        /*  In case i'll want in the future fetch Recipe details right away
+                        after the recipeList
+                         */
 
                     }
 
@@ -194,8 +181,8 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof CustomObjectListener) {
-            customObjectListener = (CustomObjectListener) context;
+        if (context instanceof CustomItemClickListener) {
+            customItemClickListener = (CustomItemClickListener) context;
         } else {
             throw new RuntimeException(context.toString() + " must implement OnListItemClickListener");
         }
@@ -204,8 +191,7 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
     @Override
     public void onDetach() {
         super.onDetach();
-        customObjectListener = null;
+        customItemClickListener = null;
     }
-
 
 }

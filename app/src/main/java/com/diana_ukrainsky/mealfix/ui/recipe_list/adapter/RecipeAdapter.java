@@ -1,4 +1,4 @@
-package com.diana_ukrainsky.mealfix.presentation.recipe_list;
+package com.diana_ukrainsky.mealfix.ui.recipe_list.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -6,13 +6,16 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.diana_ukrainsky.mealfix.data.model.recipe.Recipe;
 import com.diana_ukrainsky.mealfix.databinding.ItemProgressBinding;
 import com.diana_ukrainsky.mealfix.databinding.RecipeListItemBinding;
+import com.diana_ukrainsky.mealfix.ui.callback.CustomItemClickListener;
+import com.diana_ukrainsky.mealfix.ui.callback.RecipeDiffCallback;
+import com.diana_ukrainsky.mealfix.ui.recipe_list.pagination.PaginationManager;
+import com.diana_ukrainsky.mealfix.utils.ImageUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,17 +26,20 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private ItemProgressBinding itemProgressBinding;
 
     private ArrayList<Recipe> recipeArrayList;
-    private CustomObjectListener customObjectListener;
+    private CustomItemClickListener customItemClickListener;
 
-    private RecipeListViewModel recipeListViewModel;
-
+    private Context context;
 
     private static final int LOADING = 0;
     private static final int ITEM = 1;
 
-    public RecipeAdapter(ArrayList<Recipe> recipeArrayList, CustomObjectListener customObjectListener) {
-        this.customObjectListener=customObjectListener;
+    private static final int RECIPE_IMAGE_WIDTH=1000;
+    private static final int RECIPE_IMAGE_HEIGHT=1000;
+
+    public RecipeAdapter(Context context,ArrayList<Recipe> recipeArrayList, CustomItemClickListener customItemClickListener) {
+        this.customItemClickListener = customItemClickListener;
         this.recipeArrayList = recipeArrayList;
+        this.context = context;
     }
 
     @NonNull
@@ -62,9 +68,10 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             case ITEM:
                 MyViewHolder myViewHolder = (MyViewHolder) holder;
                 setListeners(myViewHolder,position);
+                setImage(recipe.getRecipeImage());
                 myViewHolder.recipeListItemBinding.recipeListItemTXTTitle.setText(recipe.getRecipeName());
                 myViewHolder.recipeListItemBinding.recipeListItemTXTCookingTime.setText(""+recipe.getCookTime());
-//                myViewHolder.recipeListItemBinding.recipeListItemTXTCookingTime.setText(recipe.getRecipeId());
+
                 break;
 
             case LOADING:
@@ -74,9 +81,18 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
     }
 
+        private void setImage(String recipeImage) {
+            ImageUtil.setImageUI(context,
+                    recipeImage,
+                    recipeListItemBinding.
+                            recipeListItemIMGRecipeImage,
+                    RECIPE_IMAGE_WIDTH,
+                    RECIPE_IMAGE_HEIGHT);
+    }
+
     private void setListeners(MyViewHolder holder, int position) {
         holder.recipeListItemBinding.recipeListItemCVRecipeItemCard.setOnClickListener(v->{
-            customObjectListener.onItemSelected(position);
+            customItemClickListener.onItemSelected(position);
         });
     }
 

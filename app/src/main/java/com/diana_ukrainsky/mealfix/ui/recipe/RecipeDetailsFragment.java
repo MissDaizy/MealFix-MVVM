@@ -1,4 +1,4 @@
-package com.diana_ukrainsky.mealfix.presentation.recipe_list.fragments;
+package com.diana_ukrainsky.mealfix.ui.recipe;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -12,13 +12,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.bumptech.glide.Glide;
 import com.diana_ukrainsky.mealfix.data.model.recipe.Recipe;
 import com.diana_ukrainsky.mealfix.databinding.FragmentRecipeDetailsBinding;
-import com.diana_ukrainsky.mealfix.presentation.recipe_list.CustomObjectListener;
-import com.diana_ukrainsky.mealfix.presentation.recipe_list.ItemListener;
-import com.diana_ukrainsky.mealfix.presentation.recipe_list.RecipeAdapter;
-import com.diana_ukrainsky.mealfix.presentation.recipe_list.RecipeListViewModel;
+import com.diana_ukrainsky.mealfix.ui.callback.CustomItemClickListener;
+import com.diana_ukrainsky.mealfix.ui.callback.CustomItemUpdateListener;
+import com.diana_ukrainsky.mealfix.ui.recipe_list.RecipeListViewModel;
+import com.diana_ukrainsky.mealfix.utils.ImageUtil;
 
 import java.util.ArrayList;
 
@@ -27,23 +26,16 @@ public class RecipeDetailsFragment extends Fragment implements LifecycleOwner {
     private RecipeListViewModel recipeListViewModel;
     private FragmentRecipeDetailsBinding fragmentRecipeDetailsBinding;
 
-    private RecipeAdapter recipeAdapter;
+    private CustomItemClickListener customItemClickListener;
 
-    private CustomObjectListener customObjectListener;
-
+    private final int RECIPE_IMAGE_HEIGHT = 1000;
+    private final int RECIPE_IMAGE_WIDTH = 1000;
 
     int position;
 
     public RecipeDetailsFragment() {
         // Required empty public constructor
     }
-
-    public static RecipeDetailsFragment newInstance(String param1, String param2) {
-        RecipeDetailsFragment fragment = new RecipeDetailsFragment();
-        return fragment;
-    }
-
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,23 +53,19 @@ public class RecipeDetailsFragment extends Fragment implements LifecycleOwner {
 
         setViewModel();
         setViews(position);
-
         setListeners();
-//
-//        setRecipeListUI();
 
         return view;
     }
 
     private void setListeners() {
-        ItemListener itemListener = new ItemListener() {
+        CustomItemUpdateListener customItemUpdateListener = new CustomItemUpdateListener() {
             @Override
             public void onItemUpdated() {
                 setRecipeDetailsUI();
-
             }
         };
-        recipeListViewModel.setItemLisener(itemListener);
+        recipeListViewModel.setItemLisener(customItemUpdateListener);
     }
 
     private void setViews(int position) {
@@ -85,14 +73,15 @@ public class RecipeDetailsFragment extends Fragment implements LifecycleOwner {
         setImage(recipe.getRecipeImage());
         fragmentRecipeDetailsBinding.recipeListItemTXTTitle.setText(recipe.getRecipeName());
         fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTCookingTime.setText(String.valueOf(recipe.getCookTime()));
-//        fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTCookingTime.setText(recipe.getGetMoreInfoUrl().substring(recipe.getGetMoreInfoUrl().lastIndexOf("/") + 1));
     }
 
     private void setImage(String recipeImage) {
-        Glide.with(getContext())
-                .load(recipeImage)
-                .override(1000,1000)
-                .into(fragmentRecipeDetailsBinding.recipeListItemIMGRecipeImage);
+        ImageUtil.setImageUI(getContext(),
+                recipeImage,
+                fragmentRecipeDetailsBinding.
+                        recipeListItemIMGRecipeImage,
+                RECIPE_IMAGE_WIDTH,
+                RECIPE_IMAGE_HEIGHT);
     }
 
     private void setViewModel() {
@@ -100,40 +89,40 @@ public class RecipeDetailsFragment extends Fragment implements LifecycleOwner {
         recipeListViewModel.getRecipeListData().observe(getViewLifecycleOwner(), recipeListUpdateObserver);
 
     }
+
     Observer<ArrayList<Recipe>> recipeListUpdateObserver = new Observer<ArrayList<Recipe>>() {
         @Override
         public void onChanged(ArrayList<Recipe> recipeArrayList) {
-            // Update the UI with the new data
-
+            // Update UI with the new data
         }
     };
 
     private void setRecipeDetailsUI() {
         Recipe recipe = recipeListViewModel.getRecipeListData().getValue().get(position);
-        //fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTCookingTime.setText(recipe.getGetMoreInfoUrl().substring(recipe.getGetMoreInfoUrl().lastIndexOf("/") + 1));
-        fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTDescription.setText(recipe.getRecipeDescription());
-
-
-
+        fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTDescription.setText(String.valueOf(recipe.getRecipeDescription()));
+        fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTNutritionSugar.setText(String.valueOf(recipe.getNutrition().getSugar()));
+        fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTCarbohydrates.setText(String.valueOf(recipe.getNutrition().getCarbohydrates()));
+        fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTFiber.setText(String.valueOf(recipe.getNutrition().getFiber()));
+        fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTProtein.setText(String.valueOf(recipe.getNutrition().getProtein()));
+        fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTFat.setText(String.valueOf(recipe.getNutrition().getFat()));
+        fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTCalories.setText(String.valueOf(recipe.getNutrition().getCalories()));
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof CustomObjectListener) {
-            customObjectListener = (CustomObjectListener) context;
+        if (context instanceof CustomItemClickListener) {
+            customItemClickListener = (CustomItemClickListener) context;
         } else {
-            throw new RuntimeException(context.toString() + " must implement OnListItemClickListener");
+            throw new RuntimeException(context + " must implement OnListItemClickListener");
         }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        customObjectListener = null;
+        customItemClickListener = null;
     }
-
-
 
 
 }

@@ -1,4 +1,4 @@
-package com.diana_ukrainsky.mealfix.presentation.recipe_list;
+package com.diana_ukrainsky.mealfix.ui.callback;
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
@@ -44,7 +44,6 @@ public class RecipeDiffCallback extends  DiffUtil.Callback {
     @Nullable
     @Override
     public Object getChangePayload(int oldItemPosition, int newItemPosition) {
-        // Implement method if you're going to use ItemAnimator
         return super.getChangePayload(oldItemPosition, newItemPosition);
     }
 }

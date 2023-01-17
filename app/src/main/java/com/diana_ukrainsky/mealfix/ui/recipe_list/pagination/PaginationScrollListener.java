@@ -1,4 +1,4 @@
-package com.diana_ukrainsky.mealfix.presentation.recipe_list;
+package com.diana_ukrainsky.mealfix.ui.recipe_list.pagination;
 
 
 import androidx.recyclerview.widget.LinearLayoutManager;

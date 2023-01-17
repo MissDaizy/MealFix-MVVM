@@ -5,4 +5,20 @@
     <string name="title">TITLE</string>
     <string name="image">image</string>
     <string name="cooking_time">COOKING TIME</string>
+    <string name="cooking_time_preview">Cooking Time:</string>
+    <string name="description">DESCRIPTION</string>
+    <string name="description_fetched">Description fetched:</string>
+    <string name="nutrition_preview">Nutrition:</string>
+    <string name="nutrition_carbohydrates">CARBOHYDRATES</string>
+    <string name="fiber">FIBER</string>
+    <string name="fat">FAT</string>
+    <string name="calories">CALORIES</string>
+    <string name="protein">PROTEIN</string>
+    <string name="sugar_preview">Sugar:</string>
+    <string name="nutrition_sugar">SUGAR</string>
+    <string name="carbs_preview">Carbs:</string>
+    <string name="fiber_preview">Fiber:</string>
+    <string name="protein_preview">Protein:</string>
+    <string name="calories_preview">Calories:</string>
+    <string name="fat_preview">Fat:</string>
 </resources>

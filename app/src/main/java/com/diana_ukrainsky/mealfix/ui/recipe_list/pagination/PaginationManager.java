@@ -1,4 +1,4 @@
-package com.diana_ukrainsky.mealfix.presentation.recipe_list;
+package com.diana_ukrainsky.mealfix.ui.recipe_list.pagination;
 
 public class PaginationManager {
 
@@ -32,8 +32,6 @@ public class PaginationManager {
     public boolean isLastPage() {
         return isLastPage;
     }
-
-
 
     public void addLoadingFooter() {
         isLoadingAdded = true;

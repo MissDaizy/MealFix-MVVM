@@ -9,14 +9,13 @@ import com.diana_ukrainsky.mealfix.data.model.recipe.RecipeList;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
 
-public class NetFetchTask {
+public class ApiManager {
     private final Callback_networkResponse callback_firstNetworkResponse;
     private final Callback_networkResponse callback_secondNetworkResponse;
     private final ApiService apiService;
 
-    public NetFetchTask(
+    public ApiManager(
             Callback_networkResponse callback_firstNetworkResponse,
             Callback_networkResponse callback_secondNetworkResponse) {
         this.callback_firstNetworkResponse = callback_firstNetworkResponse;
@@ -25,19 +24,16 @@ public class NetFetchTask {
         apiService = ApiService.getInstance();
     }
 
-    public void start(int fromPage,int size) {
+    public void start(int fromPage, int size) {
         // Perform some background task
-        retrieveRecipeListDataFromServer(fromPage,size);
-       // retrieveRecipeDetailsDataFromServer();
-    }
-    private void second() {
-         //retrieveRecipeDetailsDataFromServer(object);
+        retrieveRecipeListDataFromServer(fromPage, size);
     }
 
     private void retrieveRecipeListDataFromServer(int fromPage, int size) {
-        // Call your endpoint
         Call<RecipeList> call = apiService.getJsonApiRecipe().getAllRecipes(
-                );
+                fromPage,
+                size
+        );
 
         call.enqueue(new Callback<RecipeList>() {
             @Override
@@ -46,7 +42,7 @@ public class NetFetchTask {
                     assert response.body() != null;
                     callback_firstNetworkResponse.onSuccess(response.body());
                 } else {
-                    Log.d(Constants.LOG,response.errorBody().toString());
+                    Log.d(Constants.LOG, response.errorBody().toString());
 
                     callback_firstNetworkResponse.onError();
                 }
@@ -56,18 +52,16 @@ public class NetFetchTask {
             @Override
             public void onFailure(Call<RecipeList> call, Throwable t) {
                 callback_firstNetworkResponse.onError();
-                Log.d(Constants.LOG,t.getMessage());
-
+                Log.d(Constants.LOG, "Throwable t message: " + t.getMessage());
             }
         });
     }
 
-    public void retrieveRecipeDetailsDataFromServer(String recipeUrl,int id,Callback_networkResponse callback_networkResponse) {
-        recipeUrl=recipeUrl.substring(recipeUrl.lastIndexOf("/") + 1);
-        // Call your endpoint
+    public void retrieveRecipeDetailsDataFromServer(String recipeUrl, int id, Callback_networkResponse callback_networkResponse) {
+        recipeUrl = recipeUrl.substring(recipeUrl.lastIndexOf("/") + 1);
         Call<Recipe> call = apiService.getJsonApiRecipe().getRecipeDetails(
                 recipeUrl
-                );
+        );
 
         call.enqueue(new Callback<Recipe>() {
             @Override
@@ -78,7 +72,6 @@ public class NetFetchTask {
                 } else {
                     callback_secondNetworkResponse.onError();
                 }
-
             }
 
             @Override
@@ -93,8 +86,5 @@ public class NetFetchTask {
         void onSuccess(T object);
         void onError();
     }
-
-
-
 }
 

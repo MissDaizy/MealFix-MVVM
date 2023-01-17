@@ -12,8 +12,7 @@ public class ApiService {
     private Retrofit retrofit;
     private JsonApiRecipe jsonApiRecipe;
 
-    private ApiService()
-    {
+    private ApiService() {
         initializeRetrofit();
         setJsonPlaceholders();
     }
@@ -22,8 +21,7 @@ public class ApiService {
         jsonApiRecipe = retrofit.create(JsonApiRecipe.class);
     }
 
-    public static ApiService getInstance()
-    {
+    public static ApiService getInstance() {
         if (INSTANCE == null)
             INSTANCE = new ApiService();
 
