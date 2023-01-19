@@ -1,5 +1,8 @@
 plugins {
     id 'com.android.application'
+    id 'dagger.hilt.android.plugin'
+
+
 }
 
 android {
@@ -29,10 +32,14 @@ android {
     buildFeatures {
         viewBinding true
     }
+    packagingOptions {
+    }
 }
 ext {
     daggerVersion = '2.44.2'
     paging_version = '3.1.1'
+    room_version = "2.2.5"
+
 }
 
 dependencies {
@@ -40,9 +47,6 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.5.1'
     implementation 'com.google.android.material:material:1.7.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.paging:paging-guava:3.1.1'
-    implementation 'androidx.paging:paging-rxjava3:3.1.1'
-    implementation 'androidx.paging:paging-rxjava2:3.1.1'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
@@ -59,5 +63,22 @@ dependencies {
     // *** Pagination Library **********************************************************
     implementation "androidx.paging:paging-runtime:$paging_version"
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0'
+
+    // *** Hilt Library **********************************************************
+    implementation "com.google.dagger:hilt-android:2.44"
+    annotationProcessor "com.google.dagger:hilt-compiler:2.44"
+    implementation 'androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03'
+
+
+    // *** Room **********************************************************
+    implementation "androidx.room:room-runtime:$room_version"
+    annotationProcessor "androidx.room:room-compiler:$room_version"
+    implementation "androidx.room:room-rxjava2:$room_version"
+
+    // *** RxJava3 **********************************************************
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.2'
+    implementation "com.github.akarnokd:rxjava3-retrofit-adapter:3.0.0"
+
 
 }

@@ -21,6 +21,7 @@ import com.diana_ukrainsky.mealfix.data.model.recipe.Recipe;
 import com.diana_ukrainsky.mealfix.data.model.recipe.RecipeList;
 import com.diana_ukrainsky.mealfix.databinding.FragmentRecipeListBinding;
 import com.diana_ukrainsky.mealfix.ui.callback.CustomItemClickListener;
+import com.diana_ukrainsky.mealfix.ui.recipe_list.pagination.PaginationManager;
 import com.diana_ukrainsky.mealfix.ui.recipe_list.pagination.PaginationScrollListener;
 import com.diana_ukrainsky.mealfix.ui.recipe_list.adapter.RecipeAdapter;
 import com.diana_ukrainsky.mealfix.ui.recipe_list.RecipeListEvent;
@@ -153,28 +154,32 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
 
 
     private void loadFirstPage() {
-        recipeListViewModel.populateList(object -> {
-                    if (object != null) {
-                        RecipeList recipeList = ((RecipeList) object);
-                        ArrayList<Recipe> recipes = (ArrayList<Recipe>) recipeList.getRecipeList();
-                        recipeListViewModel.onEventRecipeList(RecipeListEvent.LoadFirstPage, recipeList.getCount());
-                        progressBar.setVisibility(View.GONE);
-                        recipeAdapter.updateRecipeListItems(recipes);
-
-
-                    } else {
-                        progressBar.setVisibility(View.GONE);
-                    }
-                },
-                object -> {
-                    if (object != null) {
-                        /*  In case i'll want in the future fetch Recipe details right away
-                        after the recipeList
-                         */
-
-                    }
-
-                });
+        // TODO: Hide and show loading spinner
+        recipeListViewModel.getRecipes(
+                PaginationManager.getInstance().getCurrentPage(),
+                PaginationManager.getInstance().getMaxResultsInPage());
+//        recipeListViewModel.populateList(object -> {
+//                    if (object != null) {
+//                        RecipeList recipeList = ((RecipeList) object);
+//                        ArrayList<Recipe> recipes = (ArrayList<Recipe>) recipeList.getRecipeList();
+//                        recipeListViewModel.onEventRecipeList(RecipeListEvent.LoadFirstPage, recipeList.getCount());
+//                        progressBar.setVisibility(View.GONE);
+//                        recipeAdapter.updateRecipeListItems(recipes);
+//
+//
+//                    } else {
+//                        progressBar.setVisibility(View.GONE);
+//                    }
+//                },
+//                object -> {
+//                    if (object != null) {
+//                        /*  In case i'll want in the future fetch Recipe details right away
+//                        after the recipeList
+//                         */
+//
+//                    }
+//
+//                });
     }
 
 

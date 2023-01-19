@@ -2,10 +2,20 @@ package com.diana_ukrainsky.mealfix.data.remote;
 
 import android.util.Log;
 
+import androidx.lifecycle.MutableLiveData;
+
 import com.diana_ukrainsky.mealfix.common.Constants;
 import com.diana_ukrainsky.mealfix.data.model.recipe.Recipe;
 import com.diana_ukrainsky.mealfix.data.model.recipe.RecipeList;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Scheduler;
+import io.reactivex.rxjava3.functions.Function;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -26,59 +36,33 @@ public class ApiManager {
 
     public void start(int fromPage, int size) {
         // Perform some background task
-        retrieveRecipeListDataFromServer(fromPage, size);
+//        retrieveRecipeListDataFromServer(fromPage, size);
     }
 
-    private void retrieveRecipeListDataFromServer(int fromPage, int size) {
-        Call<RecipeList> call = apiService.getJsonApiRecipe().getAllRecipes(
-                fromPage,
-                size
-        );
-
-        call.enqueue(new Callback<RecipeList>() {
-            @Override
-            public void onResponse(Call<RecipeList> call, Response<RecipeList> response) {
-                if (response.isSuccessful()) {
-                    assert response.body() != null;
-                    callback_firstNetworkResponse.onSuccess(response.body());
-                } else {
-                    Log.d(Constants.LOG, response.errorBody().toString());
-
-                    callback_firstNetworkResponse.onError();
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<RecipeList> call, Throwable t) {
-                callback_firstNetworkResponse.onError();
-                Log.d(Constants.LOG, "Throwable t message: " + t.getMessage());
-            }
-        });
-    }
 
     public void retrieveRecipeDetailsDataFromServer(String recipeUrl, int id, Callback_networkResponse callback_networkResponse) {
         recipeUrl = recipeUrl.substring(recipeUrl.lastIndexOf("/") + 1);
-        Call<Recipe> call = apiService.getJsonApiRecipe().getRecipeDetails(
+        Observable<Recipe> call = apiService.getJsonApiRecipe().getRecipeDetails(
                 recipeUrl
         );
+        // TODO: Change to Rxjava3:
 
-        call.enqueue(new Callback<Recipe>() {
-            @Override
-            public void onResponse(Call<Recipe> call, Response<Recipe> response) {
-                if (response.isSuccessful()) {
-                    assert response.body() != null;
-                    callback_networkResponse.onSuccess(response.body());
-                } else {
-                    callback_secondNetworkResponse.onError();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Recipe> call, Throwable t) {
-                callback_firstNetworkResponse.onError();
-            }
-        });
+//        call.enqueue(new Callback<Recipe>() {
+//            @Override
+//            public void onResponse(Call<Recipe> call, Response<Recipe> response) {
+//                if (response.isSuccessful()) {
+//                    assert response.body() != null;
+//                    callback_networkResponse.onSuccess(response.body());
+//                } else {
+//                    callback_secondNetworkResponse.onError();
+//                }
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Recipe> call, Throwable t) {
+//                callback_firstNetworkResponse.onError();
+//            }
+//        });
     }
 
 
