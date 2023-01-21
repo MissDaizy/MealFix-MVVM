@@ -20,8 +20,11 @@ import com.diana_ukrainsky.mealfix.ui.recipe_list.RecipeListViewModel;
 import com.diana_ukrainsky.mealfix.utils.ImageUtil;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
 
+@AndroidEntryPoint
 public class RecipeDetailsFragment extends Fragment implements LifecycleOwner {
     private RecipeListViewModel recipeListViewModel;
     private FragmentRecipeDetailsBinding fragmentRecipeDetailsBinding;
@@ -49,23 +52,10 @@ public class RecipeDetailsFragment extends Fragment implements LifecycleOwner {
         fragmentRecipeDetailsBinding = FragmentRecipeDetailsBinding.inflate(inflater, container, false);
         View view = fragmentRecipeDetailsBinding.getRoot();
 
-        position = getArguments().getInt("position", 0);
-
         setViewModel();
         setViews(position);
-        setListeners();
 
         return view;
-    }
-
-    private void setListeners() {
-        CustomItemUpdateListener customItemUpdateListener = new CustomItemUpdateListener() {
-            @Override
-            public void onItemUpdated() {
-                setRecipeDetailsUI();
-            }
-        };
-        recipeListViewModel.setItemLisener(customItemUpdateListener);
     }
 
     private void setViews(int position) {
@@ -86,19 +76,22 @@ public class RecipeDetailsFragment extends Fragment implements LifecycleOwner {
 
     private void setViewModel() {
         recipeListViewModel = new ViewModelProvider(getActivity()).get(RecipeListViewModel.class);
-        recipeListViewModel.getRecipeListData().observe(getViewLifecycleOwner(), recipeListUpdateObserver);
+        recipeListViewModel.getSelectedRecipe().observe(getViewLifecycleOwner(), recipeUpdateObserver);
 
     }
 
-    Observer<ArrayList<Recipe>> recipeListUpdateObserver = new Observer<ArrayList<Recipe>>() {
+    Observer<Recipe> recipeUpdateObserver = new Observer<Recipe>() {
         @Override
-        public void onChanged(ArrayList<Recipe> recipeArrayList) {
-            // Update UI with the new data
+        public void onChanged(Recipe recipe) {
+            if(recipe!=null) {
+                setRecipeDetailsUI(recipe);
+            }
         }
     };
 
-    private void setRecipeDetailsUI() {
-        Recipe recipe = recipeListViewModel.getRecipeListData().getValue().get(position);
+
+
+    private void setRecipeDetailsUI(Recipe recipe) {
         fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTDescription.setText(String.valueOf(recipe.getRecipeDescription()));
         fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTNutritionSugar.setText(String.valueOf(recipe.getNutrition().getSugar()));
         fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTCarbohydrates.setText(String.valueOf(recipe.getNutrition().getCarbohydrates()));

@@ -15,6 +15,9 @@ import com.diana_ukrainsky.mealfix.ui.recipe_list.RecipeListViewModel;
 import com.diana_ukrainsky.mealfix.ui.recipe.RecipeDetailsFragment;
 import com.diana_ukrainsky.mealfix.ui.recipe_list.fragment.RecipeListFragment;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class HomeActivity extends AppCompatActivity implements CustomItemClickListener {
     private RecipeListViewModel recipeListViewModel;
 
@@ -44,7 +47,7 @@ public class HomeActivity extends AppCompatActivity implements CustomItemClickLi
         fragmentManager = getSupportFragmentManager();
 
         if (savedInstanceState == null) {
-            RecipeListFragment recipeListFragment = new RecipeListFragment(this.customItemClickListener);
+            RecipeListFragment recipeListFragment = new RecipeListFragment(this);
             fragmentManager.beginTransaction()
                     .add(R.id.activityHome_FL_frameLayout, recipeListFragment)
                     .commit();
@@ -52,15 +55,12 @@ public class HomeActivity extends AppCompatActivity implements CustomItemClickLi
     }
 
     @Override
-    public void onItemSelected(int position) {
+    public void onClick(Object object) {
         recipeDetailsFragment = new RecipeDetailsFragment();
-        Bundle bundle = new Bundle();
-        bundle.putInt("position", position);
-        recipeDetailsFragment.setArguments(bundle);
         recipeListViewModel
                 .onEventRecipeList(
                         RecipeListEvent.ListItemClicked,
-                        position
+                        object
                 );
 
         fragmentManager.beginTransaction()

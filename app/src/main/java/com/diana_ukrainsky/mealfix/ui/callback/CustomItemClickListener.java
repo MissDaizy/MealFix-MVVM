@@ -1,5 +1,5 @@
 package com.diana_ukrainsky.mealfix.ui.callback;
 
-public interface CustomItemClickListener {
-     void onItemSelected(int position);
+public interface CustomItemClickListener<T> {
+     void onClick(T object);
 }

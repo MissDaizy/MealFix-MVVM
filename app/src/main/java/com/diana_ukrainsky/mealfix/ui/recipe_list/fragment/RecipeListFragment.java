@@ -28,7 +28,11 @@ import com.diana_ukrainsky.mealfix.ui.recipe_list.RecipeListEvent;
 import com.diana_ukrainsky.mealfix.ui.recipe_list.RecipeListViewModel;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class RecipeListFragment extends Fragment implements LifecycleOwner {
 
     private RecipeListViewModel recipeListViewModel;
@@ -78,7 +82,10 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
 
     private void setViewModel() {
         recipeListViewModel = new ViewModelProvider(getActivity()).get(RecipeListViewModel.class);
+        // Observe Recipe List Live Data
         recipeListViewModel.getRecipeListData().observe(this.getViewLifecycleOwner(), recipeListUpdateObserver);
+        // Observe Loading Live Data
+        recipeListViewModel.getLoading().observe(this.getViewLifecycleOwner(), loadingObserver);
     }
 
     private void setRecyclerView() {
@@ -89,20 +96,30 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
         recyclerView.setLayoutManager(linearLayoutManager);
     }
 
-    Observer<ArrayList<Recipe>> recipeListUpdateObserver = new Observer<ArrayList<Recipe>>() {
+    Observer<List<Recipe>> recipeListUpdateObserver = new Observer<List<Recipe>>() {
         @Override
-        public void onChanged(ArrayList<Recipe> recipeArrayList) {
-            recipeAdapter.notifyDataSetChanged();
+        public void onChanged(List<Recipe> recipeList) {
+            recipeAdapter.updateRecipeListItems(recipeList);
+        }
+    };
+
+    Observer<Boolean> loadingObserver = new Observer<Boolean>() {
+        @Override
+        public void onChanged(Boolean isLoading) {
+            if(isLoading)
+                progressBar.setVisibility(View.VISIBLE);
+            else
+                progressBar.setVisibility(View.GONE);
         }
     };
 
     private void setRecipeListUI() {
         loadFirstPage();
-        loadMoreItems();
+       // loadMoreItems();
     }
 
     private void setAdapter() {
-        recipeAdapter = new RecipeAdapter(getContext(), recipeListViewModel.getRecipeListData().getValue(), customItemClickListener);
+        recipeAdapter = new RecipeAdapter(getContext(), customItemClickListener);
         recyclerView.setAdapter(recipeAdapter);
     }
 
@@ -155,9 +172,7 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
 
     private void loadFirstPage() {
         // TODO: Hide and show loading spinner
-        recipeListViewModel.getRecipes(
-                PaginationManager.getInstance().getCurrentPage(),
-                PaginationManager.getInstance().getMaxResultsInPage());
+        recipeListViewModel.getRecipes();
 //        recipeListViewModel.populateList(object -> {
 //                    if (object != null) {
 //                        RecipeList recipeList = ((RecipeList) object);
@@ -182,21 +197,5 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
 //                });
     }
 
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof CustomItemClickListener) {
-            customItemClickListener = (CustomItemClickListener) context;
-        } else {
-            throw new RuntimeException(context.toString() + " must implement OnListItemClickListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        customItemClickListener = null;
-    }
 
 }

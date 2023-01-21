@@ -40,30 +40,6 @@ public class ApiManager {
     }
 
 
-    public void retrieveRecipeDetailsDataFromServer(String recipeUrl, int id, Callback_networkResponse callback_networkResponse) {
-        recipeUrl = recipeUrl.substring(recipeUrl.lastIndexOf("/") + 1);
-        Observable<Recipe> call = apiService.getJsonApiRecipe().getRecipeDetails(
-                recipeUrl
-        );
-        // TODO: Change to Rxjava3:
-
-//        call.enqueue(new Callback<Recipe>() {
-//            @Override
-//            public void onResponse(Call<Recipe> call, Response<Recipe> response) {
-//                if (response.isSuccessful()) {
-//                    assert response.body() != null;
-//                    callback_networkResponse.onSuccess(response.body());
-//                } else {
-//                    callback_secondNetworkResponse.onError();
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<Recipe> call, Throwable t) {
-//                callback_firstNetworkResponse.onError();
-//            }
-//        });
-    }
 
 
     public interface Callback_networkResponse<T> {

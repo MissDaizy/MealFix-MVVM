@@ -36,9 +36,9 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     private static final int RECIPE_IMAGE_WIDTH=1000;
     private static final int RECIPE_IMAGE_HEIGHT=1000;
 
-    public RecipeAdapter(Context context,ArrayList<Recipe> recipeArrayList, CustomItemClickListener customItemClickListener) {
-        this.customItemClickListener = customItemClickListener;
-        this.recipeArrayList = recipeArrayList;
+    public RecipeAdapter(Context context, CustomItemClickListener customItemClickListener) {
+        this.customItemClickListener=customItemClickListener;
+        this.recipeArrayList = new ArrayList<>();
         this.context = context;
     }
 
@@ -67,7 +67,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         switch (getItemViewType(position)) {
             case ITEM:
                 MyViewHolder myViewHolder = (MyViewHolder) holder;
-                setListeners(myViewHolder,position);
+                setListeners(myViewHolder,recipe);
                 setImage(recipe.getRecipeImage());
                 myViewHolder.recipeListItemBinding.recipeListItemTXTTitle.setText(recipe.getRecipeName());
                 myViewHolder.recipeListItemBinding.recipeListItemTXTCookingTime.setText(""+recipe.getCookTime());
@@ -90,9 +90,9 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                     RECIPE_IMAGE_HEIGHT);
     }
 
-    private void setListeners(MyViewHolder holder, int position) {
+    private void setListeners(MyViewHolder holder, Recipe recipe) {
         holder.recipeListItemBinding.recipeListItemCVRecipeItemCard.setOnClickListener(v->{
-            customItemClickListener.onItemSelected(position);
+            customItemClickListener.onClick(recipe);
         });
     }
 
@@ -117,6 +117,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         this.recipeArrayList.clear();
         this.recipeArrayList.addAll(recipes);
+        this.notifyDataSetChanged();
         diffResult.dispatchUpdatesTo(this);
     }
 

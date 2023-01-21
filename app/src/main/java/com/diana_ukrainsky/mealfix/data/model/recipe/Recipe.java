@@ -88,4 +88,10 @@ public class Recipe {
     public void setNutrition(Nutrition nutrition) {
         this.nutrition = nutrition;
     }
+
+    public void setAdditionalAttributes(Recipe recipe) {
+        this.nutrition = recipe.nutrition;
+        this.recipeDescription = recipeDescription;
+
+    }
 }
