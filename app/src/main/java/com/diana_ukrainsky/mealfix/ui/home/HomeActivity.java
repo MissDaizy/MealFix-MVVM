@@ -8,6 +8,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.diana_ukrainsky.mealfix.R;
+import com.diana_ukrainsky.mealfix.data.model.recipe.Recipe;
 import com.diana_ukrainsky.mealfix.databinding.ActivityHomeBinding;
 import com.diana_ukrainsky.mealfix.ui.callback.CustomItemClickListener;
 import com.diana_ukrainsky.mealfix.ui.recipe_list.RecipeListEvent;
@@ -56,12 +57,14 @@ public class HomeActivity extends AppCompatActivity implements CustomItemClickLi
 
     @Override
     public void onClick(Object object) {
-        recipeDetailsFragment = new RecipeDetailsFragment();
+
         recipeListViewModel
                 .onEventRecipeList(
                         RecipeListEvent.ListItemClicked,
                         object
                 );
+        recipeDetailsFragment = new RecipeDetailsFragment();
+
 
         fragmentManager.beginTransaction()
                 .replace(R.id.activityHome_FL_frameLayout, recipeDetailsFragment)

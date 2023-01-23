@@ -3,6 +3,8 @@ package com.diana_ukrainsky.mealfix.ui.recipe_list.fragment;
 import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
@@ -57,6 +59,7 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        recipeListViewModel = new ViewModelProvider(requireActivity()).get(RecipeListViewModel.class);
 
     }
 
@@ -66,13 +69,18 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
         fragmentRecipeListBinding = FragmentRecipeListBinding.inflate(inflater, container, false);
         View view = fragmentRecipeListBinding.getRoot();
 
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         setViewModel();
+
         setViews();
         setRecyclerView();
         setAdapter();
         setRecipeListUI();
-
-        return view;
     }
 
     private void setViews() {
@@ -81,11 +89,16 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
     }
 
     private void setViewModel() {
-        recipeListViewModel = new ViewModelProvider(getActivity()).get(RecipeListViewModel.class);
         // Observe Recipe List Live Data
         recipeListViewModel.getRecipeListData().observe(this.getViewLifecycleOwner(), recipeListUpdateObserver);
         // Observe Loading Live Data
         recipeListViewModel.getLoading().observe(this.getViewLifecycleOwner(), loadingObserver);
+
+//        // Another way of implementation of observing the mutable list
+//        recipeListViewModel.getRecipeListData().observe(this.getViewLifecycleOwner(), recipes -> {
+//            recipeAdapter.updateRecipeListItems(recipes);
+//        });
+
     }
 
     private void setRecyclerView() {

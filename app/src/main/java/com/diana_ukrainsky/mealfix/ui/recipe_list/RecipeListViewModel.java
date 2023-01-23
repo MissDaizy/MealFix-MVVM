@@ -34,6 +34,8 @@ public class RecipeListViewModel extends ViewModel {
     private MutableLiveData<List<Recipe>> recipeLiveData;
     // Variable of the selectedRecipe
     private MutableLiveData<Recipe> selectedRecipe;
+    private MutableLiveData<Boolean> isSelectedRecipeUpdated;
+
     // Variable for hiding and showing the loading spinner
     private MutableLiveData<Boolean> loading;
 
@@ -53,6 +55,7 @@ public class RecipeListViewModel extends ViewModel {
 
         recipeLiveData = new MutableLiveData<>();
         selectedRecipe = new MutableLiveData<>();
+        isSelectedRecipeUpdated=new MutableLiveData<>();
         loading = new MutableLiveData<>();
 
         init();
@@ -79,6 +82,10 @@ public class RecipeListViewModel extends ViewModel {
 
     public LiveData<Recipe> getSelectedRecipe() {
         return selectedRecipe;
+    }
+
+    public MutableLiveData<Boolean> getIsSelectedRecipeUpdated() {
+        return isSelectedRecipeUpdated;
     }
 
     public void populateList(
@@ -156,6 +163,8 @@ public class RecipeListViewModel extends ViewModel {
                         public void onNext(@NonNull RecipeList recipeList) {
                             // Hides loading spinner and update the UI with the recipe data
                             loading.setValue(false);
+                            // I have to clear that list:
+                            recipeArrayList.clear();
                             recipeArrayList.addAll(recipeList.getRecipeList());
                             recipeLiveData.setValue(recipeArrayList);
                             incrementCurrentPage();
@@ -222,6 +231,7 @@ public class RecipeListViewModel extends ViewModel {
                             loading.setValue(false);
                             recipe.setAdditionalAttributes(recipe);
                             selectedRecipe.setValue(recipe);
+                            isSelectedRecipeUpdated.setValue(true);
                         }
 
                         @Override
@@ -242,8 +252,9 @@ public class RecipeListViewModel extends ViewModel {
     public void onEventRecipeList(RecipeListEvent event, Object object) {
         switch (event) {
             case ListItemClicked: {
-
-                selectRecipe((Recipe) object);
+                Recipe currentRecipe = (Recipe) object;
+                selectedRecipe.setValue(currentRecipe);
+                selectRecipe(currentRecipe);
 
                 break;
             }

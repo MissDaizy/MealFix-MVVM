@@ -15,12 +15,9 @@ import android.view.ViewGroup;
 import com.diana_ukrainsky.mealfix.data.model.recipe.Recipe;
 import com.diana_ukrainsky.mealfix.databinding.FragmentRecipeDetailsBinding;
 import com.diana_ukrainsky.mealfix.ui.callback.CustomItemClickListener;
-import com.diana_ukrainsky.mealfix.ui.callback.CustomItemUpdateListener;
 import com.diana_ukrainsky.mealfix.ui.recipe_list.RecipeListViewModel;
+import com.diana_ukrainsky.mealfix.ui.recipe_list.fragment.RecipeListFragment;
 import com.diana_ukrainsky.mealfix.utils.ImageUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -40,26 +37,24 @@ public class RecipeDetailsFragment extends Fragment implements LifecycleOwner {
         // Required empty public constructor
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         fragmentRecipeDetailsBinding = FragmentRecipeDetailsBinding.inflate(inflater, container, false);
-        View view = fragmentRecipeDetailsBinding.getRoot();
+
+        recipeListViewModel = new ViewModelProvider(requireActivity()).get(RecipeListViewModel.class);
 
         setViewModel();
-        setViews(position);
+
+        Recipe recipe=recipeListViewModel.getSelectedRecipe().getValue();
+        setViews(recipe);
+        View view = fragmentRecipeDetailsBinding.getRoot();
 
         return view;
     }
 
-    private void setViews(int position) {
-        Recipe recipe = recipeListViewModel.getRecipeListData().getValue().get(position);
+    private void setViews(Recipe recipe) {
         setImage(recipe.getRecipeImage());
         fragmentRecipeDetailsBinding.recipeListItemTXTTitle.setText(recipe.getRecipeName());
         fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTCookingTime.setText(String.valueOf(recipe.getCookTime()));
@@ -75,21 +70,28 @@ public class RecipeDetailsFragment extends Fragment implements LifecycleOwner {
     }
 
     private void setViewModel() {
-        recipeListViewModel = new ViewModelProvider(getActivity()).get(RecipeListViewModel.class);
         recipeListViewModel.getSelectedRecipe().observe(getViewLifecycleOwner(), recipeUpdateObserver);
+        recipeListViewModel.getSelectedRecipe().observe(getViewLifecycleOwner(), recipeObserver);
+//        recipeListViewModel.getIsSelectedRecipeUpdated().observe(getViewLifecycleOwner(), isRecipeUpdatedObserver);
 
     }
 
     Observer<Recipe> recipeUpdateObserver = new Observer<Recipe>() {
         @Override
         public void onChanged(Recipe recipe) {
-            if(recipe!=null) {
+            if(recipe.getNutrition()!=null) {
                 setRecipeDetailsUI(recipe);
             }
         }
     };
 
-
+    Observer<Recipe> recipeObserver=new Observer<Recipe>() {
+        @Override
+        public void onChanged(Recipe recipe) {
+            if(recipe!=null)
+                setViews(recipe);
+        }
+    };
 
     private void setRecipeDetailsUI(Recipe recipe) {
         fragmentRecipeDetailsBinding.fragmentRecipeDetailsTXTDescription.setText(String.valueOf(recipe.getRecipeDescription()));
