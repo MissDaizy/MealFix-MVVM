@@ -1,0 +1,6 @@
+// ********** CompositeDisposable **********
+
+// Using clear will clear all, but can accept new disposable
+disposables.clear();
+// Using dispose will clear all and set isDisposed = true, so it will not accept any new disposable
+disposables.dispose();

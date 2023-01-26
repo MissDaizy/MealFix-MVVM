@@ -4,6 +4,7 @@ import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.diana_ukrainsky.mealfix.common.Constants;
@@ -17,21 +18,29 @@ import com.diana_ukrainsky.repository.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
+import io.reactivex.Flowable;
+import io.reactivex.Single;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
+import io.reactivex.rxjava3.subjects.PublishSubject;
 
 @HiltViewModel
 public class RecipeListViewModel extends ViewModel {
     // Variable the Recipe List
     private MutableLiveData<List<Recipe>> recipeLiveData;
+    private MutableLiveData<List<Recipe>> filteredLiveData;
     // Variable of the selectedRecipe
     private MutableLiveData<Recipe> selectedRecipe;
     private MutableLiveData<Boolean> isSelectedRecipeUpdated;
@@ -39,26 +48,31 @@ public class RecipeListViewModel extends ViewModel {
     // Variable for hiding and showing the loading spinner
     private MutableLiveData<Boolean> loading;
 
+    private PublishSubject<RecipeList> recipesSubject;
+
+    private CompositeDisposable disposables;
+
     ArrayList<Recipe> recipeArrayList;
-    Recipe currentClickedRecipe;
-    int clickedRecipePosition;
-
-    private ApiService apiService;
     private Repository repository;
-
-    ApiManager apiManager;
     private PaginationManager paginationManager;
 
     @Inject
     public RecipeListViewModel(Repository repository) {
         this.repository = repository;
 
-        recipeLiveData = new MutableLiveData<>();
-        selectedRecipe = new MutableLiveData<>();
-        isSelectedRecipeUpdated=new MutableLiveData<>();
-        loading = new MutableLiveData<>();
 
         init();
+        subscribeSubject();
+    }
+
+    private void subscribeSubject() {
+        Disposable disposable =
+                repository.getRecipes(getCurrentPage(), getMaxResultsInPage())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe(recipesSubject::onNext, throwable -> {
+                            // handle error here
+                        });
+        disposables.add(disposable);
     }
 
     public MutableLiveData<List<Recipe>> getRecipeMutableLiveData() {
@@ -66,9 +80,17 @@ public class RecipeListViewModel extends ViewModel {
     }
 
     public void init() {
-        apiService = ApiService.getInstance();
-        paginationManager = PaginationManager.getInstance();
+        recipeLiveData = new MutableLiveData<>();
+        selectedRecipe = new MutableLiveData<>();
+        isSelectedRecipeUpdated = new MutableLiveData<>();
+        loading = new MutableLiveData<>();
+        filteredLiveData = new MutableLiveData<>();
         recipeArrayList = new ArrayList<>();
+
+        recipesSubject = PublishSubject.create();
+        disposables = new CompositeDisposable();
+
+        paginationManager = PaginationManager.getInstance();
         recipeLiveData.setValue(recipeArrayList);
     }
 
@@ -88,45 +110,6 @@ public class RecipeListViewModel extends ViewModel {
         return isSelectedRecipeUpdated;
     }
 
-    public void populateList(
-            Callback_retrofitResponse callback_firstRetrofitResponse,
-            Callback_retrofitResponse callback_secondRetrofitResponse
-    ) {
-
-        apiManager = new ApiManager(new ApiManager.Callback_networkResponse() {
-            @Override
-            public void onSuccess(Object object) {
-                RecipeList recipeList = (RecipeList) object;
-                recipeArrayList.addAll(recipeList.getRecipeList());
-                recipeLiveData.setValue(recipeArrayList);
-                callback_firstRetrofitResponse.onResult(recipeList);
-            }
-
-            @Override
-            public void onError() {
-                Log.d(Constants.LOG, "Error: ");
-            }
-        }, new ApiManager.Callback_networkResponse() {
-            @Override
-            public void onSuccess(Object object) {
-                Recipe recipe = (Recipe) object;
-                // Return the recipe
-                callback_secondRetrofitResponse.onResult(recipe);
-            }
-
-            @Override
-            public void onError() {
-                Log.d(Constants.LOG, "Error");
-
-            }
-        });
-        apiManager.start(
-                paginationManager.getCurrentPage(),
-                paginationManager.getMaxResultsInPage()
-        );
-
-    }
-
     public MutableLiveData<List<Recipe>> getRecipeListData() {
         if (recipeLiveData == null) {
             recipeLiveData = new MutableLiveData<>();
@@ -135,13 +118,18 @@ public class RecipeListViewModel extends ViewModel {
         return recipeLiveData;
     }
 
+    public MutableLiveData<List<Recipe>> getFilteredLiveData() {
+        return filteredLiveData;
+    }
+
     public void getRecipes() {
         // Check if there are more recipes to fetch
-        if(!isLastPage()) {
+        if (!isLastPage()) {
             // Shows loading spinner
             loading.setValue(true);
             // Get Recipes by page
-            repository.getRecipes(getCurrentPage(),getMaxResultsInPage())
+            recipesSubject
+                    .debounce(400, TimeUnit.MILLISECONDS)
                     .subscribeOn(Schedulers.io())
                     .map(recipeList -> {
                         for (Recipe recipe : recipeList.getRecipeList()) {
@@ -157,6 +145,7 @@ public class RecipeListViewModel extends ViewModel {
                         public void onSubscribe(@NonNull Disposable d) {
                             // Shows loading spinner
                             loading.setValue(true);
+                            disposables.add(d);
                         }
 
                         @Override
@@ -185,33 +174,6 @@ public class RecipeListViewModel extends ViewModel {
         }
     }
 
-
-    public void getRecipeDetails(String recipeUrl, int id, ApiManager.Callback_networkResponse callback_networkResponse) {
-        recipeUrl = recipeUrl.substring(recipeUrl.lastIndexOf("/") + 1);
-        Observable<Recipe> call = apiService.getJsonApiRecipe().getRecipeDetails(
-                recipeUrl
-        );
-
-        // TODO: Change to Rxjava3:
-
-//        call.enqueue(new Callback<Recipe>() {
-//            @Override
-//            public void onResponse(Call<Recipe> call, Response<Recipe> response) {
-//                if (response.isSuccessful()) {
-//                    assert response.body() != null;
-//                    callback_networkResponse.onSuccess(response.body());
-//                } else {
-//                    callback_secondNetworkResponse.onError();
-//                }
-//            }
-//
-//            @Override
-//            public void onFailure(Call<Recipe> call, Throwable t) {
-//                callback_firstNetworkResponse.onError();
-//            }
-//        });
-    }
-
     public void selectRecipe(Recipe recipe) {
         if (recipeLiveData.getValue() != null) {
             loading.setValue(true);
@@ -223,6 +185,7 @@ public class RecipeListViewModel extends ViewModel {
                         public void onSubscribe(@NonNull Disposable d) {
                             // Shows loading spinner
                             loading.setValue(true);
+                            disposables.add(d);
                         }
 
                         @Override
@@ -296,12 +259,29 @@ public class RecipeListViewModel extends ViewModel {
     public int getCurrentPage() {
         return paginationManager.getCurrentPage();
     }
+
     public int getMaxResultsInPage() {
         return paginationManager.getMaxResultsInPage();
     }
 
     private void incrementCurrentPage() {
-        paginationManager.setCurrentPage(getCurrentPage()+1);
+        paginationManager.setCurrentPage(getCurrentPage() + 1);
     }
 
+    // TODO: change and add equals function of objects
+    public LiveData<List<Recipe>> searchRecipes(String searchQuery) {
+        List<Recipe> filteredRecipes = new ArrayList<>();
+        for (Recipe recipe : Objects.requireNonNull(recipeLiveData.getValue())) {
+            if (recipe.getRecipeName().toLowerCase().contains(searchQuery)) {
+                filteredRecipes.add(recipe);
+            }
+        }
+        filteredLiveData.setValue(filteredRecipes);
+        return filteredLiveData;
+    }
+
+    public void disposeComposite() {
+        // Using dispose will clear all and set isDisposed = true, so it will not accept any new disposable
+        disposables.dispose();
+    }
 }

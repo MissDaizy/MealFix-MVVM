@@ -1,10 +1,13 @@
 package com.diana_ukrainsky.mealfix.ui.callback;
 
+import android.os.Bundle;
+
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
 
 import com.diana_ukrainsky.mealfix.data.model.recipe.Recipe;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeDiffCallback extends  DiffUtil.Callback {
@@ -29,8 +32,8 @@ public class RecipeDiffCallback extends  DiffUtil.Callback {
 
     @Override
     public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-        return mOldRecipeList.get(oldItemPosition).getRecipeId() == mNewRecipeList.get(
-                newItemPosition).getRecipeId();
+        return mOldRecipeList.get(oldItemPosition).equals(mNewRecipeList.get(
+                newItemPosition));
     }
 
     @Override
@@ -38,12 +41,18 @@ public class RecipeDiffCallback extends  DiffUtil.Callback {
         final Recipe oldRecipe = mOldRecipeList.get(oldItemPosition);
         final Recipe newRecipe = mNewRecipeList.get(newItemPosition);
 
-        return oldRecipe.getRecipeName().equals(newRecipe.getRecipeName());
+        return oldRecipe.equals(newRecipe);
     }
 
     @Nullable
     @Override
     public Object getChangePayload(int oldItemPosition, int newItemPosition) {
-        return super.getChangePayload(oldItemPosition, newItemPosition);
+        //return super.getChangePayload(oldItemPosition, newItemPosition);
+        Recipe newRecipe = mNewRecipeList.get(newItemPosition);
+        Recipe oldRecipe = mOldRecipeList.get(oldItemPosition);
+        if (!newRecipe.equals(oldRecipe)) {
+            return newRecipe;
+        }
+       return null;
     }
 }

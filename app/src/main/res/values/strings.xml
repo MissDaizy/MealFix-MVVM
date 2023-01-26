@@ -21,4 +21,6 @@
     <string name="protein_preview">Protein:</string>
     <string name="calories_preview">Calories:</string>
     <string name="fat_preview">Fat:</string>
+    <string name="search">Search Recipes</string>
+
 </resources>

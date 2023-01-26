@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
@@ -21,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
     private RecipeListItemBinding recipeListItemBinding;
     private ItemProgressBinding itemProgressBinding;
 
@@ -68,9 +68,11 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             case ITEM:
                 MyViewHolder myViewHolder = (MyViewHolder) holder;
                 setListeners(myViewHolder,recipe);
-                setImage(recipe.getRecipeImage());
                 myViewHolder.recipeListItemBinding.recipeListItemTXTTitle.setText(recipe.getRecipeName());
                 myViewHolder.recipeListItemBinding.recipeListItemTXTCookingTime.setText(""+recipe.getCookTime());
+                setImage(recipe.getRecipeImage(),myViewHolder.recipeListItemBinding.recipeListItemIMGRecipeImage
+                );
+
 
                 break;
 
@@ -79,13 +81,13 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 loadingViewHolder.itemProgressBinding.loadmoreProgress.setVisibility(View.VISIBLE);
                 break;
         }
+
     }
 
-        private void setImage(String recipeImage) {
+    public void setImage(String recipeImage, ImageView recipeListItemIMGRecipeImage) {
             ImageUtil.setImageUI(context,
                     recipeImage,
-                    recipeListItemBinding.
-                            recipeListItemIMGRecipeImage,
+                    recipeListItemIMGRecipeImage,
                     RECIPE_IMAGE_WIDTH,
                     RECIPE_IMAGE_HEIGHT);
     }
@@ -127,6 +129,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public MyViewHolder(RecipeListItemBinding recipeListItemBinding) {
             super(recipeListItemBinding.getRoot());
             this.recipeListItemBinding = recipeListItemBinding;
+
         }
     }
     public class LoadingViewHolder extends RecyclerView.ViewHolder {
@@ -135,6 +138,7 @@ public class RecipeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         public LoadingViewHolder(ItemProgressBinding itemProgressBinding) {
             super(itemProgressBinding.getRoot());
             this.itemProgressBinding = itemProgressBinding;
+
         }
     }
 }

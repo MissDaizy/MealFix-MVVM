@@ -3,6 +3,8 @@ package com.diana_ukrainsky.mealfix.data.model.recipe;
 import com.diana_ukrainsky.mealfix.data.model.nutrition.Nutrition;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Objects;
+
 public class Recipe {
     @SerializedName("id")
     private int recipeId;
@@ -93,5 +95,13 @@ public class Recipe {
         this.nutrition = recipe.nutrition;
         this.recipeDescription = recipeDescription;
 
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if(o instanceof Recipe) {
+            return Objects.equals(recipeId, ((Recipe) o).recipeId);
+        }
+        return false;
     }
 }

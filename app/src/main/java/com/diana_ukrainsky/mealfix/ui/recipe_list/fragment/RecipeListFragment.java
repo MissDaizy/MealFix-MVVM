@@ -12,6 +12,8 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +24,7 @@ import com.diana_ukrainsky.mealfix.common.Constants;
 import com.diana_ukrainsky.mealfix.data.model.recipe.Recipe;
 import com.diana_ukrainsky.mealfix.data.model.recipe.RecipeList;
 import com.diana_ukrainsky.mealfix.databinding.FragmentRecipeListBinding;
+import com.diana_ukrainsky.mealfix.databinding.ItemProgressBinding;
 import com.diana_ukrainsky.mealfix.ui.callback.CustomItemClickListener;
 import com.diana_ukrainsky.mealfix.ui.recipe_list.pagination.PaginationManager;
 import com.diana_ukrainsky.mealfix.ui.recipe_list.pagination.PaginationScrollListener;
@@ -31,6 +34,7 @@ import com.diana_ukrainsky.mealfix.ui.recipe_list.RecipeListViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -38,7 +42,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class RecipeListFragment extends Fragment implements LifecycleOwner {
 
     private RecipeListViewModel recipeListViewModel;
-
     private FragmentRecipeListBinding fragmentRecipeListBinding;
     private LinearLayoutManager linearLayoutManager;
     private RecyclerView recyclerView;
@@ -46,6 +49,7 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
 
     private CustomItemClickListener customItemClickListener;
 
+    // Progress Bar for loading items  in the first page, not by scrolling
     private ProgressBar progressBar;
 
     public RecipeListFragment() {
@@ -78,9 +82,30 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
         setViewModel();
 
         setViews();
+        setListeners();
         setRecyclerView();
         setAdapter();
         setRecipeListUI();
+    }
+
+    private void setListeners() {
+        fragmentRecipeListBinding.fragmentRecipeListEDTSearchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                recipeListViewModel.searchRecipes(editable.toString().toLowerCase(Locale.ROOT));
+
+            }
+        });
     }
 
     private void setViews() {
@@ -93,12 +118,13 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
         recipeListViewModel.getRecipeListData().observe(this.getViewLifecycleOwner(), recipeListUpdateObserver);
         // Observe Loading Live Data
         recipeListViewModel.getLoading().observe(this.getViewLifecycleOwner(), loadingObserver);
+        // Observe Filtered Recipe Live Data
+        recipeListViewModel.getFilteredLiveData().observe(this.getViewLifecycleOwner(), filteredRecipeListUpdateObserver);
 
 //        // Another way of implementation of observing the mutable list
 //        recipeListViewModel.getRecipeListData().observe(this.getViewLifecycleOwner(), recipes -> {
 //            recipeAdapter.updateRecipeListItems(recipes);
 //        });
-
     }
 
     private void setRecyclerView() {
@@ -119,13 +145,22 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
     Observer<Boolean> loadingObserver = new Observer<Boolean>() {
         @Override
         public void onChanged(Boolean isLoading) {
-            if(isLoading)
+            if(isLoading){
                 progressBar.setVisibility(View.VISIBLE);
-            else
+            }
+            else {
                 progressBar.setVisibility(View.GONE);
+            }
         }
     };
 
+    Observer<List<Recipe>> filteredRecipeListUpdateObserver = new Observer<List<Recipe>>() {
+        @Override
+        public void onChanged(List<Recipe> recipes) {
+            recipeAdapter.updateRecipeListItems(recipes);
+
+        }
+    };
     private void setRecipeListUI() {
         loadFirstPage();
        // loadMoreItems();
@@ -137,50 +172,51 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
     }
 
 
-    private void loadMoreItems() {
-        recyclerView.addOnScrollListener(new PaginationScrollListener(linearLayoutManager) {
-            @Override
-            protected void loadMoreItems() {
-                progressBar.setVisibility(View.VISIBLE);
-                recipeListViewModel.onEventRecipeList(RecipeListEvent.LoadMoreItems, null);
-                loadNextPage();
-            }
+//    private void loadMoreItems() {
+//        recyclerView.addOnScrollListener(new PaginationScrollListener(linearLayoutManager) {
+//            @Override
+//            protected void loadMoreItems() {
+//                progressBar.setVisibility(View.VISIBLE);
+//                recipeListViewModel.onEventRecipeList(RecipeListEvent.LoadMoreItems, null);
+//                loadNextPage();
+//            }
+//
+//            @Override
+//            public boolean isLastPage() {
+//                return recipeListViewModel.isLastPage();
+//            }
+//
+//            @Override
+//            public boolean isLoading() {
+//                return recipeListViewModel.isLoading();
+//            }
+//        });
+//    }
 
-            @Override
-            public boolean isLastPage() {
-                return recipeListViewModel.isLastPage();
-            }
-
-            @Override
-            public boolean isLoading() {
-                return recipeListViewModel.isLoading();
-            }
-        });
-    }
-
-    private void loadNextPage() {
-        recipeListViewModel.populateList(object -> {
-                    if (object != null) {
-                        RecipeList recipeList = ((RecipeList) object);
-                        ArrayList<Recipe> recipes = (ArrayList<Recipe>) recipeList.getRecipeList();
-                        recipeListViewModel.onEventRecipeList(RecipeListEvent.LoadNextPage, recipeList.getCount());
-                        recipeAdapter.addAll(recipes);
-                        recipeAdapter.notifyDataSetChanged();
-
-                    } else {
-                        //AlertUtils.showToast (getApplicationContext (), movieList.getError ());
-                        progressBar.setVisibility(View.GONE);
-                    }
-                },
-                object -> {
-                    if (object != null) {
-                        /*  In case i'll want in the future fetch Recipe details right away
-                        after the recipeList
-                         */
-                    }
-
-                });
-    }
+//
+//    private void loadNextPage() {
+//        recipeListViewModel.populateList(object -> {
+//                    if (object != null) {
+//                        RecipeList recipeList = ((RecipeList) object);
+//                        ArrayList<Recipe> recipes = (ArrayList<Recipe>) recipeList.getRecipeList();
+//                        recipeListViewModel.onEventRecipeList(RecipeListEvent.LoadNextPage, recipeList.getCount());
+//                        recipeAdapter.addAll(recipes);
+//                        recipeAdapter.notifyDataSetChanged();
+//
+//                    } else {
+//                        //AlertUtils.showToast (getApplicationContext (), movieList.getError ());
+//                        progressBar.setVisibility(View.GONE);
+//                    }
+//                },
+//                object -> {
+//                    if (object != null) {
+//                        /*  In case i'll want in the future fetch Recipe details right away
+//                        after the recipeList
+//                         */
+//                    }
+//
+//                });
+//    }
 
 
     private void loadFirstPage() {
@@ -210,5 +246,10 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
 //                });
     }
 
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // Destroy composite when fragment is destroyed.
+        recipeListViewModel.disposeComposite();
+    }
 }

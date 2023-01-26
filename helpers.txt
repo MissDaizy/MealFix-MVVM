@@ -1,0 +1,24 @@
+// ********** For searching by query parameter RxJava3 **********
+
+public class MovieRepository {
+    private MovieApi movieApi;
+
+    public MovieRepository(MovieApi movieApi) {
+        this.movieApi = movieApi;
+    }
+
+    public Flowable<List<Movie>> searchMoviesByTitle(String query, int page) {
+        return movieApi.searchMoviesByTitle(query, page)
+                .subscribeOn(Schedulers.io())
+                .map(response -> response.getResults())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+}
+
+// In the interface:
+
+public interface MovieApi {
+    @GET("search/movie")
+    Flowable<SearchResponse> searchMoviesByTitle(@Query("query") String query, @Query("page") int page);
+}
+
