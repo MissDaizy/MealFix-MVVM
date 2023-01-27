@@ -3,9 +3,10 @@ package com.diana_ukrainsky.mealfix.data.model.recipe;
 import com.diana_ukrainsky.mealfix.data.model.nutrition.Nutrition;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Comparator;
 import java.util.Objects;
 
-public class Recipe {
+public class Recipe  {
     @SerializedName("id")
     private int recipeId;
     @SerializedName("name")
@@ -103,5 +104,20 @@ public class Recipe {
             return Objects.equals(recipeId, ((Recipe) o).recipeId);
         }
         return false;
+    }
+
+
+    public static class SortByTitle implements Comparator<Recipe> {
+        // Used for sorting title
+        public int compare(Recipe r1, Recipe r2) {
+            return r1.getRecipeName().compareTo(r2.getRecipeName());
+        }
+    }
+    public static class SortByCookTime implements Comparator<Recipe> {
+        // Used for sorting in ascending order of
+        // roll number
+        public int compare(Recipe r1, Recipe r2) {
+            return r1.getCookTime() - r2.getCookTime();
+        }
     }
 }

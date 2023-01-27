@@ -22,5 +22,8 @@
     <string name="calories_preview">Calories:</string>
     <string name="fat_preview">Fat:</string>
     <string name="search">Search Recipes</string>
+    <string name="filter_show_all">All</string>
+    <string name="filter_cook_time">Cook Time</string>
+    <string name="filter_title">title</string>
 
 </resources>

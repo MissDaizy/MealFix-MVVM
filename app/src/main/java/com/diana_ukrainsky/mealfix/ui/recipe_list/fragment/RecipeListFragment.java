@@ -26,11 +26,13 @@ import com.diana_ukrainsky.mealfix.data.model.recipe.RecipeList;
 import com.diana_ukrainsky.mealfix.databinding.FragmentRecipeListBinding;
 import com.diana_ukrainsky.mealfix.databinding.ItemProgressBinding;
 import com.diana_ukrainsky.mealfix.ui.callback.CustomItemClickListener;
+import com.diana_ukrainsky.mealfix.ui.recipe_list.FilterType;
 import com.diana_ukrainsky.mealfix.ui.recipe_list.pagination.PaginationManager;
 import com.diana_ukrainsky.mealfix.ui.recipe_list.pagination.PaginationScrollListener;
 import com.diana_ukrainsky.mealfix.ui.recipe_list.adapter.RecipeAdapter;
 import com.diana_ukrainsky.mealfix.ui.recipe_list.RecipeListEvent;
 import com.diana_ukrainsky.mealfix.ui.recipe_list.RecipeListViewModel;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +66,6 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         recipeListViewModel = new ViewModelProvider(requireActivity()).get(RecipeListViewModel.class);
-
     }
 
     @Override
@@ -89,6 +90,7 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
     }
 
     private void setListeners() {
+        // Can be replaced with a SearchView
         fragmentRecipeListBinding.fragmentRecipeListEDTSearchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -104,6 +106,36 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
             public void afterTextChanged(Editable editable) {
                 recipeListViewModel.searchRecipes(editable.toString().toLowerCase(Locale.ROOT));
 
+            }
+        });
+        setFilterButtonsListeners();
+    }
+
+    private void setFilterButtonsListeners() {
+        fragmentRecipeListBinding.fragmentRecipeListBTNAllFilter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recipeListViewModel.onEventRecipeList(RecipeListEvent.FilterList, FilterType.ALL);
+            }
+        });
+        fragmentRecipeListBinding.fragmentRecipeListBTNAscCookTimeFilter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recipeListViewModel.onEventRecipeList(RecipeListEvent.FilterList, FilterType.ASC_COOK_TIME);
+
+            }
+        });
+
+        fragmentRecipeListBinding.fragmentRecipeListBTNDescCookTimeFilter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recipeListViewModel.onEventRecipeList(RecipeListEvent.FilterList, FilterType.DESC_COOK_TIME);
+            }
+        });
+        fragmentRecipeListBinding.fragmentRecipeListBTNTitleFilter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recipeListViewModel.onEventRecipeList(RecipeListEvent.FilterList, FilterType.TITLE);
             }
         });
     }
@@ -145,10 +177,9 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
     Observer<Boolean> loadingObserver = new Observer<Boolean>() {
         @Override
         public void onChanged(Boolean isLoading) {
-            if(isLoading){
+            if (isLoading) {
                 progressBar.setVisibility(View.VISIBLE);
-            }
-            else {
+            } else {
                 progressBar.setVisibility(View.GONE);
             }
         }
@@ -161,9 +192,10 @@ public class RecipeListFragment extends Fragment implements LifecycleOwner {
 
         }
     };
+
     private void setRecipeListUI() {
         loadFirstPage();
-       // loadMoreItems();
+        // loadMoreItems();
     }
 
     private void setAdapter() {

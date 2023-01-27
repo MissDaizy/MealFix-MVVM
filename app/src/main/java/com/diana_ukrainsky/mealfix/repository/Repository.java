@@ -1,4 +1,4 @@
-package com.diana_ukrainsky.repository;
+package com.diana_ukrainsky.mealfix.repository;
 
 import com.diana_ukrainsky.mealfix.data.model.recipe.Recipe;
 import com.diana_ukrainsky.mealfix.data.model.recipe.RecipeList;

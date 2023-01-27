@@ -1,35 +1,30 @@
 package com.diana_ukrainsky.mealfix.ui.recipe_list;
 
+import static com.diana_ukrainsky.mealfix.ui.recipe_list.FilterType.ALL;
+
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.diana_ukrainsky.mealfix.common.Constants;
 import com.diana_ukrainsky.mealfix.data.model.recipe.Recipe;
 import com.diana_ukrainsky.mealfix.data.model.recipe.RecipeList;
-import com.diana_ukrainsky.mealfix.data.remote.ApiManager;
-import com.diana_ukrainsky.mealfix.data.callback.callbacks.Callback_retrofitResponse;
-import com.diana_ukrainsky.mealfix.data.remote.ApiService;
+import com.diana_ukrainsky.mealfix.repository.Repository;
 import com.diana_ukrainsky.mealfix.ui.recipe_list.pagination.PaginationManager;
-import com.diana_ukrainsky.repository.Repository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
-import io.reactivex.Flowable;
-import io.reactivex.Single;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.annotations.NonNull;
-import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -47,6 +42,8 @@ public class RecipeListViewModel extends ViewModel {
 
     // Variable for hiding and showing the loading spinner
     private MutableLiveData<Boolean> loading;
+
+    private FilterType selectedFilter;
 
     private PublishSubject<RecipeList> recipesSubject;
 
@@ -92,6 +89,9 @@ public class RecipeListViewModel extends ViewModel {
 
         paginationManager = PaginationManager.getInstance();
         recipeLiveData.setValue(recipeArrayList);
+
+        // Default of filter is "All"
+        selectedFilter = ALL;
     }
 
     public LiveData<Boolean> getLoading() {
@@ -214,6 +214,11 @@ public class RecipeListViewModel extends ViewModel {
 
     public void onEventRecipeList(RecipeListEvent event, Object object) {
         switch (event) {
+            case FilterList: {
+                selectedFilter = (FilterType) object;
+                filterList();
+                break;
+            }
             case ListItemClicked: {
                 Recipe currentRecipe = (Recipe) object;
                 selectedRecipe.setValue(currentRecipe);
@@ -248,6 +253,38 @@ public class RecipeListViewModel extends ViewModel {
         }
     }
 
+    private void filterList() {
+        List<Recipe> filteredRecipes;
+        if (recipeLiveData.getValue() == null)
+            return;
+        else if (filteredLiveData.getValue() == null)
+            filteredRecipes = recipeLiveData.getValue();
+        else
+            filteredRecipes = filteredLiveData.getValue();
+
+        filterCases(filteredRecipes);
+    }
+
+    private void filterCases(List<Recipe> filteredRecipes) {
+        switch (selectedFilter) {
+            case ALL:
+                filteredLiveData.setValue(recipeLiveData.getValue());
+                break;
+            case ASC_COOK_TIME:
+                Collections.sort(filteredRecipes, new Recipe.SortByCookTime().reversed());
+                filteredLiveData.setValue(filteredRecipes);
+                break;
+            case DESC_COOK_TIME:
+                Collections.sort(filteredRecipes, new Recipe.SortByCookTime());
+                filteredLiveData.setValue(filteredRecipes);
+                break;
+            case TITLE:
+                Collections.sort(filteredRecipes, new Recipe.SortByTitle());
+                filteredLiveData.setValue(filteredRecipes);
+                break;
+        }
+    }
+
     public boolean isLastPage() {
         return paginationManager.isLastPage();
     }
@@ -269,7 +306,7 @@ public class RecipeListViewModel extends ViewModel {
     }
 
     // TODO: change and add equals function of objects
-    public LiveData<List<Recipe>> searchRecipes(String searchQuery) {
+    public void searchRecipes(String searchQuery) {
         List<Recipe> filteredRecipes = new ArrayList<>();
         for (Recipe recipe : Objects.requireNonNull(recipeLiveData.getValue())) {
             if (recipe.getRecipeName().toLowerCase().contains(searchQuery)) {
@@ -277,7 +314,6 @@ public class RecipeListViewModel extends ViewModel {
             }
         }
         filteredLiveData.setValue(filteredRecipes);
-        return filteredLiveData;
     }
 
     public void disposeComposite() {

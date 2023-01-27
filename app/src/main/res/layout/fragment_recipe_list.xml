@@ -16,8 +16,8 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:orientation="vertical"
-            android:background="#EFECEC">
+            android:background="#EFECEC"
+            android:orientation="vertical">
 
 
             <EditText
@@ -39,6 +39,55 @@
                 android:textColorHint="@color/black"
                 android:textSize="16sp" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/fragmentRecipeList_BTN_allFilter"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="@string/filter_show_all"
+                    android:textSize="12sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/fragmentRecipeList_BTN_ascCookTimeFilter"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/open_sans_font"
+                    android:text="@string/filter_cook_time"
+                    android:textSize="12sp"
+                    app:icon="@drawable/ic_round_arrow_upward" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/fragmentRecipeList_BTN_descCookTimeFilter"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/open_sans_font"
+                    android:text="@string/filter_cook_time"
+                    android:textSize="12sp"
+                    app:icon="@drawable/ic_round_arrow_downward" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/fragmentRecipeList_BTN_titleFilter"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/open_sans_font"
+                    android:text="@string/filter_title"
+                    android:textSize="12sp" />
+
+            </LinearLayout>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/fragmentRecipeList_RV_recyclerView"
                 android:layout_width="match_parent"
@@ -51,12 +100,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_margin="100dp"/>
+                android:layout_margin="100dp" />
         </LinearLayout>
 
     </LinearLayout>
 
 
-
-        </LinearLayout>
+</LinearLayout>
 
